@@ -41,4 +41,8 @@ jobs:
         # Publish build info
         jf rt bp     
         
+    - name: Xray scan
+      run: |
+        jf bs --fail=false
+        
         
