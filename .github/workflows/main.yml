@@ -1,0 +1,51 @@
+# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+
+name: sampleapi-mvn-api-prod-build
+
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+    - name: Setup JFrog CLI
+      uses: jfrog/setup-jfrog-cli@v3
+      env:
+        JF_ENV_1: ${{ secrets.JF_SECRET_ENV_1 }}
+        
+    - name: Ping JFrog CLI
+      run: jf rt ping
+
+       
+    - name: Build & Publish
+      env:
+        REPO_NAME : sampleapi-mvn
+      run: | 
+        jf mvnc --repo-resolve-releases $REPO_NAME --repo-resolve-snapshots $REPO_NAME --repo-deploy-releases $REPO_NAME --repo-deploy-snapshots $REPO_NAME
+        jf mvn clean install
+        # Collect environment variables for the build
+        jf rt bce
+        # Collect VCS details from git and add them to the build
+        jf rt bag
+        # Publish build info
+        jf rt bp     
+        
+    - name: Publish Build Information
+      run: |
+
+   
+    - name: Xray scan
+      run: |
+        jf bs --fail=false
+        
