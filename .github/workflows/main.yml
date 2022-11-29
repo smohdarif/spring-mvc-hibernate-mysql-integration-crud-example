@@ -45,4 +45,11 @@ jobs:
       run: |
         jf bs --fail=false
         
+    - name: Promote and Tag
+      env:
+        REPO_NAME : sampleapi-mvn-prod-local
+      run: jf rt bpr $REPO_NAME --status='release candidate' --comment='jar file is now release candidate' --copy=true --props="maintainer=muleteam;stage=prod"
+
+        
+        
         
